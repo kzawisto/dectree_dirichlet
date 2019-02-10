@@ -80,9 +80,9 @@ def get_split_vals_approx(x,y,pval)->BetaSplit:
 
     arg = (arg[0], arg[1]*stride)
     if arg[1] +1 < len(x):
-        cutoff = x[idx][arg[1]:arg[1]+2].mean()
+        cutoff = x[idx][arg[1]:arg[1]+2].mean()+1e-9
     else:
-        cutoff = x[idx][arg[1]]
+        cutoff = x[idx][arg[1]]+1e-9
     # print(cutoff)
     # print(a[arg[1]:arg[1]+2])
     return BetaSplit(arg, vals,cutoff)
