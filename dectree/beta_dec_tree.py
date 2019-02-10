@@ -9,10 +9,15 @@ from dectree.learning import find_best_split, get_basic_thump
 def get_split_point(x,y, selector,cfg):
     return get_split_vals_approx(x[selector],y[selector],cfg["pval"])
 
-def find_best_split_beta(features, target, selector,cfg)->BetaSplit:
+def find_best_split_beta(features, target, selector,cfg,verbose=0)->BetaSplit:
     split_points = [get_split_point(features[:, i], target, selector,cfg).with_feature_num(i) for i in
                     range(features.shape[1])]
+
     split_points = sorted(split_points, key=lambda s: s.score)
+
+    if verbose > 0:
+        print("candidates")
+        print(split_points[-6:])
     return split_points[-1]
 
 class BetaDecisionTree(object):

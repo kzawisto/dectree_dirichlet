@@ -32,7 +32,7 @@ class BetaSplit(object):
         return self
 
     def __str__(self):
-        return f"{self.score}_{self.position}_{self.value}"
+        return f"{self.score}_{self.position}_{self.feature_num}_{self.value}"
 
     def __lt__(self, other):
         return self.score > other.score
