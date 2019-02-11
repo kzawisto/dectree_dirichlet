@@ -21,10 +21,11 @@ def bivar_argmax(arr):
 
 @functools.total_ordering
 class BetaSplit(object):
-    def __init__(self,position, score, cutoff):
+    def __init__(self,position, score, cutoff,prior =None):
         self.score = score
         self.position = position
         self.value = cutoff# cutoff
+        self.prior = prior
         self.feature_num = -1
 
     def with_feature_num(self,i):
@@ -68,11 +69,14 @@ def get_split_vals_approx(x,y,pval)->BetaSplit:
         # /(np.arange(len(a))+1)
 
     prior=(np.mean(y))
+
+    prior_upper= SST.beta(k[-1]+1, num_st[-1]+1).ppf(1-pval)
+    prior_lower=SST.beta(k[-1]+1, num_st[-1]+1).ppf(pval)
     results= np.stack([
-        SST.beta(k + 1, num_st - k + 1).ppf(pval)-prior,
-        prior-SST.beta(k + 1, num_st - k + 1).ppf(1 - pval),
-        SST.beta(n_k + 1, num_2nd - n_k + 1).ppf(pval)-prior,
-        prior-SST.beta(n_k + 1, num_2nd - n_k + 1).ppf(1-pval)
+        SST.beta(k + 1, num_st - k + 1).ppf(pval)-prior_upper,
+        # prior_lower-SST.beta(k + 1, num_st - k + 1).ppf(1 - pval),
+        SST.beta(n_k + 1, num_2nd - n_k + 1).ppf(pval)-prior_upper,
+        # prior_lower-SST.beta(n_k + 1, num_2nd - n_k + 1).ppf(1-pval)
     ])
     # bivar_argmax(arr)
     arg=bivar_argmax(results)
@@ -85,7 +89,7 @@ def get_split_vals_approx(x,y,pval)->BetaSplit:
         cutoff = x[idx][arg[1]]+1e-9
     # print(cutoff)
     # print(a[arg[1]:arg[1]+2])
-    return BetaSplit(arg, vals,cutoff)
+    return BetaSplit(arg, vals,cutoff, prior_upper)
 
 
 def get_split_approx(k,num_st, n_k, num_2nd,prior,pval):
@@ -155,10 +159,10 @@ class BetaSplitLocation(object):
         self.glob_root = glob_root
 
     def __lt__(self, other):
-        return self.split.score > other.split.score
+        return self.split.score+self.split.prior > other.split.score + other.split.prior
 
     def __eq__(self, other):
-        return self.split.score == other.split.score
+        return self.split.score+other.split.prior == other.split.score+other.split.prior
 
     def apply(self, features, target, sample_weight=None):
         if self.side == "left":
