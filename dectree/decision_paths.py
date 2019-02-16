@@ -20,7 +20,6 @@ def drop_fr_dic(dic):
 def jsonify(graft, columns= None):
     dic={}
     if isinstance(graft, BT.TreeGraft):
-        dic = {}
         dic["cutoff"] = graft.threshold
         if columns is not None:
             dic["feature"] = columns[graft.feature_num]
@@ -29,7 +28,6 @@ def jsonify(graft, columns= None):
         dic["R"] = jsonify(graft.right_child)
 
     if isinstance(graft, BT.TreeLeaf):
-        dic = {}
         dic["proba"] = graft.proba
     return dic
 
