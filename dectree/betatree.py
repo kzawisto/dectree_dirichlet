@@ -41,6 +41,7 @@ class BetaSplit(object):
     def __eq__(self, other):
         return self.score == other.score
 
+
 def get_split_vals_approx(x,y,pval)->BetaSplit:
     idx = np.argsort(x)
     if len(y.shape)==2:
@@ -164,6 +165,30 @@ class BetaSplitLocation(object):
     def __eq__(self, other):
         return self.split.score+other.split.prior == other.split.score+other.split.prior
 
+    def emptiness_check(self,features):
+        if self.side == "left":
+            selector1 = get_selector_for_node(self.glob_root, self.root.left_child, features)
+            selector2 = get_selector_for_node(self.glob_root, self.root, features)
+            print(f"splitting {selector2.shape[0]} into {selector1.shape[0]} and {selector2.shape[0] - selector1.shape[0]}")
+            if selector1.shape == selector2.shape or selector1.shape[0]==0:
+                print("empty split - skipping")
+                return False
+            else:
+                return True
+
+        elif self.side == "right":
+            selector1 = get_selector_for_node(self.glob_root, self.root.right_child, features)
+            selector2 = get_selector_for_node(self.glob_root, self.root, features)
+
+            print(f"splitting {selector2.shape[0]} into {selector1.shape[0]} and {selector2.shape[0] - selector1.shape[0]}")
+
+            if selector1.shape == selector2.shape or selector1.shape[0]==0:
+                print("empty split - skipping")
+                return False
+            else:
+                return True
+        else:
+            raise Exception("illegal arg side "+ str(self.side))
     def apply(self, features, target, sample_weight=None):
         if self.side == "left":
             selector = get_selector_for_node(self.glob_root, self.root.left_child, features)
