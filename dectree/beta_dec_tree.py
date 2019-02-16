@@ -79,8 +79,10 @@ class BetaDecisionTree(object):
             if self.verbosity > 0:
                 print("\nn split is",str(split.split), end="\n")
                 print("\nqueue is ", mc.List(pq.container[0:3]).map(lambda x: x.split).map(str).mk_string())
-            new_node = split.apply(features, target, sample_weight)
-            pq.push_list(self.get_splits_for_node(self.tree_initial, new_node, features, target))
+
+            if(split.emptiness_check(features)):
+                new_node = split.apply(features, target, sample_weight)
+                pq.push_list(self.get_splits_for_node(self.tree_initial, new_node, features, target))
 
     def predict_proba(self, features):
         result = np.zeros((features.shape[0], self.target_dim), self.target_dtype)
@@ -129,7 +131,7 @@ class BetaDecisionTreeOOB(BetaDecisionTree):
                 new_node = split.apply(feature_oob, target_oob, sample_w_oob)
                 pq.push_list(self.get_splits_for_node_ex(
                     self.tree_initial, new_node, features, target, feature_oob, target_oob))
-            
+
 
     def fit(self, features, target, sample_weight=None):
         split_pt = int(target.shape[0]*self.oob_ratio)
