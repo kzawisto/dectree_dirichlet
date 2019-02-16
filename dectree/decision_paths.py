@@ -105,9 +105,9 @@ def path_predict(path, features):
     prediction[selector] = 1
     return selector
 
-def get_path_model(model):
+def get_path_model(model, columns=None):
     graft=model.tree_initial
-    dic = jsonify(graft)
+    dic = jsonify(graft,columns)
     set_fathers(dic)
     leaves= mc.List(get_all_leaves(dic))
     leaves=leaves.filter(lambda x: not np.isnan(x["proba"][0])).sorted(key=lambda x: x["proba"][0])
