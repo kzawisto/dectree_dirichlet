@@ -18,6 +18,7 @@ def drop_fr_dic(dic):
     return dic
 
 def jsonify(graft, columns= None):
+    dic={}
     if isinstance(graft, BT.TreeGraft):
         dic = {}
         dic["cutoff"] = graft.threshold
